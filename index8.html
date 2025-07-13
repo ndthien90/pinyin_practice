@@ -524,7 +524,7 @@
         
         .navigation {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             gap: 15px;
         }
@@ -540,6 +540,7 @@
             transition: all 0.3s ease;
             font-weight: 600;
             font-family: 'Mulish', sans-serif;
+            flex: 1;
             max-width: 120px;
             touch-action: manipulation;
             white-space: nowrap;
@@ -922,6 +923,7 @@
                 <button class="submit-btn" id="submit-btn" onclick="submitQuiz()" style="display: none;">Nộp Bài</button>
                 
                 <div class="navigation">
+                    <button class="nav-btn" id="prev-btn" onclick="prevQuestion()" disabled>← Trước</button>
                     <button class="nav-btn" id="next-btn" onclick="nextQuestion()" disabled>Tiếp →</button>
                 </div>
             </div>
@@ -1404,10 +1406,13 @@
             document.getElementById('accuracy-stat').textContent = `${accuracy}%`;
         }
 
-        // Update navigation buttons - REMOVED BACKWARD NAVIGATION
+        // Update navigation buttons
         function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-btn');
             const nextBtn = document.getElementById('next-btn');
             const submitBtn = document.getElementById('submit-btn');
+            
+            prevBtn.disabled = currentQuestion === 0;
             
             if (currentQuestion === questions.length - 1) {
                 nextBtn.style.display = 'none';
@@ -1420,7 +1425,14 @@
             }
         }
 
-        // Navigation functions - REMOVED BACKWARD NAVIGATION
+        // Navigation functions
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
         function nextQuestion() {
             if (currentQuestion < questions.length - 1 && questionAnswered) {
                 currentQuestion++;
@@ -1606,6 +1618,7 @@
             
             document.getElementById('submit-btn').style.display = 'none';
             document.getElementById('next-btn').style.display = 'block';
+            document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = true;
             
             document.getElementById('feedback').innerHTML = '';
@@ -1648,6 +1661,7 @@
             
             document.getElementById('submit-btn').style.display = 'inline-block';
             document.getElementById('next-btn').style.display = 'block';
+            document.getElementById('prev-btn').disabled = true;
             document.getElementById('next-btn').disabled = true;
             document.getElementById('submit-btn').disabled = true;
             
