@@ -677,6 +677,234 @@
             border: 1px solid #c3e6cb;
         }
 
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: clamp(1.6em, 6vw, 2.2em);
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modal-subtitle {
+            font-size: clamp(1.1em, 4vw, 1.4em);
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .modal-close:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal-student-info {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .modal-student-name {
+            font-size: clamp(1.4em, 5vw, 1.8em);
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .modal-practice-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-info-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .modal-info-label {
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .modal-info-value {
+            font-size: clamp(1em, 3vw, 1.2em);
+            font-weight: bold;
+            color: #333;
+        }
+
+        .modal-score-section {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            border: 2px solid #4CAF50;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .modal-score {
+            font-size: clamp(3em, 10vw, 4em);
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modal-percentage {
+            font-size: clamp(1.4em, 5vw, 1.8em);
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .modal-message {
+            font-size: clamp(1.1em, 3.5vw, 1.4em);
+            color: #4CAF50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .modal-personal-message {
+            font-size: clamp(1em, 3vw, 1.3em);
+            color: #333;
+            font-style: italic;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .modal-stat-value {
+            font-size: clamp(1.5em, 5vw, 2em);
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .modal-stat-label {
+            font-size: clamp(0.8em, 2.5vw, 0.9em);
+            color: #666;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: clamp(0.9em, 3vw, 1.1em);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: 'Mulish', sans-serif;
+            touch-action: manipulation;
+        }
+
+        .modal-btn-retry {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .modal-btn-new {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+            color: white;
+        }
+
+        .modal-btn-continue {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         /* Mobile specific optimizations */
         @media (max-width: 768px) {
             body {
@@ -759,6 +987,22 @@
             .result-buttons {
                 gap: 15px;
             }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                max-height: 95vh;
+            }
+
+            .modal-practice-info {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .modal-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
         }
 
         /* Extra small screens */
@@ -789,6 +1033,10 @@
                 padding: 12px 8px;
                 min-height: 50px;
             }
+
+            .modal-content {
+                padding: 15px;
+            }
         }
 
         /* Landscape mobile optimization */
@@ -803,6 +1051,10 @@
             
             .chinese-text {
                 font-size: clamp(2.5em, 12vw, 4em);
+            }
+
+            .modal-content {
+                max-height: 95vh;
             }
         }
 
@@ -820,7 +1072,7 @@
                 box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
             }
             
-            .nav-btn:hover, .action-btn:hover, .reset-btn:hover, .back-btn:hover, .load-btn:hover {
+            .nav-btn:hover, .action-btn:hover, .reset-btn:hover, .back-btn:hover, .load-btn:hover, .modal-btn:hover {
                 transform: none;
             }
             
@@ -868,7 +1120,7 @@
             
             <!-- Student Name Input -->
             <div class="student-info">
-                <label for="student-name">👨‍🎓 Tên học sinh:</label>
+                <label for="student-name">👤 Tên học sinh:</label>
                 <input type="text" id="student-name" class="student-input" placeholder="Nhập tên của bạn..." maxlength="50">
             </div>
             
@@ -927,6 +1179,68 @@
             </div>
             
             <div id="result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            
+            <div class="modal-header">
+                <div class="modal-title">🎉 Kết Quả Bài Tập</div>
+                <div class="modal-subtitle">Pinyin Practice</div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-student-info">
+                    <div class="modal-student-name" id="modal-student-name">Tên học sinh</div>
+                    <div class="modal-practice-info">
+                        <div class="modal-info-item">
+                            <div class="modal-info-label">📚 Bài luyện tập</div>
+                            <div class="modal-info-value" id="modal-practice-name">-</div>
+                        </div>
+                        <div class="modal-info-item">
+                            <div class="modal-info-label">🔄 Lần nộp</div>
+                            <div class="modal-info-value" id="modal-submission-count">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-score-section">
+                    <div class="modal-score" id="modal-score">0/0</div>
+                    <div class="modal-percentage" id="modal-percentage">0%</div>
+                    <div class="modal-message" id="modal-message">Thông điệp</div>
+                    <div class="modal-personal-message" id="modal-personal-message">Tin nhắn cá nhân</div>
+                </div>
+
+                <div class="modal-stats">
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-value" id="modal-total-questions">0</div>
+                        <div class="modal-stat-label">Tổng câu</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-value" id="modal-correct-answers">0</div>
+                        <div class="modal-stat-label">Đúng</div>
+                    </div>
+                    <div class="modal-stat-item">
+                        <div class="modal-stat-value" id="modal-accuracy">0%</div>
+                        <div class="modal-stat-label">Độ chính xác</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-retry" onclick="retryQuiz()">
+                    🔄 Làm lại bài này
+                </button>
+                <button class="modal-btn modal-btn-new" onclick="selectNewPractice()">
+                    📚 Chọn bài khác
+                </button>
+                <button class="modal-btn modal-btn-continue" onclick="closeModal()">
+                    ✅ Đóng
+                </button>
+            </div>
         </div>
     </div>
 
@@ -997,11 +1311,12 @@
         let questionAnswered = false;
         let quizCompleted = false;
         let currentPractice = '';
+        let currentPracticeName = '';
         let currentAudio = null;
         let score = 0;
         let correctAnswers = 0;
         let studentName = '';
-        let attemptCount = 0;
+        let submissionCount = 0; // New: Track submission count
 
         // Initialize the app with mobile debugging
         function initializeApp() {
@@ -1082,7 +1397,7 @@
             const inputStudentName = studentNameInput.value.trim();
             
             console.log('🎯 Selected practice:', selectedPractice);
-            console.log('👨‍🎓 Student name:', inputStudentName);
+            console.log('👤 Student name:', inputStudentName);
             
             // Validate student name
             if (!inputStudentName) {
@@ -1188,6 +1503,8 @@
                 }
                 
                 currentPractice = selectedPractice;
+                currentPracticeName = CONFIG.practices.find(p => p.id === selectedPractice)?.name || selectedPractice;
+                submissionCount = 0; // Reset submission count for new practice
                 showPracticeInfo(selectedPractice, questions.length);
                 showLoading(false);
                 
@@ -1209,7 +1526,7 @@
             const practiceName = CONFIG.practices.find(p => p.id === practiceId)?.name || practiceId;
             
             infoDiv.innerHTML = `
-                <strong>👨‍🎓 Học sinh: ${studentName}</strong><br>
+                <strong>👤 Học sinh: ${studentName}</strong><br>
                 <strong>📚 ${practiceName}</strong><br>
                 Số câu hỏi: ${questionCount}<br>
                 <div class="action-buttons">
@@ -1234,7 +1551,6 @@
             quizCompleted = false;
             score = 0;
             correctAnswers = 0;
-            attemptCount = 0; // Reset attempt count when starting new quiz
             
             shuffleQuestions();
             initializeQuiz();
@@ -1524,21 +1840,14 @@
             }, 3000);
         }
 
-        // Submit quiz with personalized results
+        // Submit quiz with personalized results and modal
         function submitQuiz() {
             if (quizCompleted) return;
             
             console.log('📝 Submitting quiz...');
             
             quizCompleted = true;
-            attemptCount++; // Increment attempt count
-            
-            document.getElementById('question-container').style.display = 'none';
-            document.querySelector('.navigation').style.display = 'none';
-            document.getElementById('submit-btn').style.display = 'none';
-            document.querySelector('.progress-bar').style.display = 'none';
-            document.getElementById('question-number').style.display = 'none';
-            document.querySelector('.stats').style.display = 'none';
+            submissionCount++; // Increment submission count
             
             // Calculate final score based on correct answers only
             const finalScore = correctAnswers;
@@ -1560,35 +1869,51 @@
                 personalMessage = `${studentName}, đừng nản lòng! Hãy thử lại!`;
             }
             
-            // Get practice name
-            const practiceName = CONFIG.practices.find(p => p.id === currentPractice)?.name || currentPractice;
+            // Show modal instead of inline result
+            showResultModal(finalScore, percentage, message, personalMessage);
             
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <div style="font-size: clamp(1.5em, 5vw, 2em); color: #667eea; font-weight: bold; margin-bottom: 10px;">
-                    👨‍🎓 ${studentName}
-                </div>
-                <div style="font-size: clamp(1.1em, 3.5vw, 1.3em); color: #666; margin-bottom: 10px;">
-                    📚 ${practiceName}
-                </div>
-                <div style="font-size: clamp(1em, 3vw, 1.2em); color: #888; margin-bottom: 15px;">
-                    🔢 Lần nộp: ${attemptCount}
-                </div>
-                <div class="score">${finalScore}/${questions.length}</div>
-                <div style="font-size: clamp(1.2em, 4vw, 1.5em); margin-bottom: 15px;">Tỷ lệ đúng: ${percentage}%</div>
-                <div style="font-size: clamp(1.1em, 3.5vw, 1.4em); margin-bottom: 10px; color: #4CAF50; font-weight: 600;">
-                    ${personalMessage}
-                </div>
-                <div style="font-size: clamp(1em, 3vw, 1.3em); margin-bottom: 20px;">${message}</div>
-                <div class="result-buttons">
-                    <button class="reset-btn" onclick="resetQuiz()">🔄 Làm lại</button>
-                    <button class="back-btn" onclick="backToSelection()">📚 Chọn bài khác</button>
-                </div>
-            `;
+            console.log(`✅ Quiz completed by ${studentName}: ${finalScore}/${questions.length} (${percentage}%) - Submission #${submissionCount}`);
+        }
+
+        // Show result modal with complete information
+        function showResultModal(finalScore, percentage, message, personalMessage) {
+            // Update modal content
+            document.getElementById('modal-student-name').textContent = studentName;
+            document.getElementById('modal-practice-name').textContent = currentPracticeName;
+            document.getElementById('modal-submission-count').textContent = `${submissionCount}`;
+            document.getElementById('modal-score').textContent = `${finalScore}/${questions.length}`;
+            document.getElementById('modal-percentage').textContent = `${percentage}%`;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-personal-message').textContent = personalMessage;
             
-            resultDiv.style.display = 'block';
+            // Update stats
+            document.getElementById('modal-total-questions').textContent = questions.length;
+            document.getElementById('modal-correct-answers').textContent = correctAnswers;
+            document.getElementById('modal-accuracy').textContent = `${percentage}%`;
             
-            console.log(`✅ Quiz completed by ${studentName}: ${finalScore}/${questions.length} (${percentage}%) - Attempt: ${attemptCount}`);
+            // Show modal
+            document.getElementById('modal-overlay').style.display = 'flex';
+            
+            // Add body scroll lock
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Retry quiz from modal
+        function retryQuiz() {
+            closeModal();
+            resetQuiz();
+        }
+
+        // Select new practice from modal
+        function selectNewPractice() {
+            closeModal();
+            backToSelection();
         }
 
         // Reset quiz with complete state cleanup
@@ -1601,7 +1926,6 @@
             quizCompleted = false;
             score = 0;
             correctAnswers = 0;
-            // Note: attemptCount is NOT reset here so it keeps counting across retries
             
             if (currentAudio) {
                 currentAudio.pause();
@@ -1643,7 +1967,9 @@
             questions = [];
             score = 0;
             correctAnswers = 0;
-            attemptCount = 0; // Reset attempt count when going back to selection
+            submissionCount = 0; // Reset submission count
+            currentPractice = '';
+            currentPracticeName = '';
             
             if (currentAudio) {
                 currentAudio.pause();
@@ -1690,6 +2016,20 @@
             
             console.log('✅ Reset complete, showing lesson selection with student name preserved');
         }
+
+        // Close modal when clicking outside
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('modal-overlay').style.display === 'flex') {
+                closeModal();
+            }
+        });
 
         // Utility functions
         function showLoading(show) {

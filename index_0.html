@@ -868,7 +868,7 @@
             
             <!-- Student Name Input -->
             <div class="student-info">
-                <label for="student-name">👨‍🎓 Tên học sinh:</label>
+                <label for="student-name">👤 Tên học sinh:</label>
                 <input type="text" id="student-name" class="student-input" placeholder="Nhập tên của bạn..." maxlength="50">
             </div>
             
@@ -1001,7 +1001,6 @@
         let score = 0;
         let correctAnswers = 0;
         let studentName = '';
-        let attemptCount = 0;
 
         // Initialize the app with mobile debugging
         function initializeApp() {
@@ -1082,7 +1081,7 @@
             const inputStudentName = studentNameInput.value.trim();
             
             console.log('🎯 Selected practice:', selectedPractice);
-            console.log('👨‍🎓 Student name:', inputStudentName);
+            console.log('👤 Student name:', inputStudentName);
             
             // Validate student name
             if (!inputStudentName) {
@@ -1209,7 +1208,7 @@
             const practiceName = CONFIG.practices.find(p => p.id === practiceId)?.name || practiceId;
             
             infoDiv.innerHTML = `
-                <strong>👨‍🎓 Học sinh: ${studentName}</strong><br>
+                <strong>👤 Học sinh: ${studentName}</strong><br>
                 <strong>📚 ${practiceName}</strong><br>
                 Số câu hỏi: ${questionCount}<br>
                 <div class="action-buttons">
@@ -1234,7 +1233,6 @@
             quizCompleted = false;
             score = 0;
             correctAnswers = 0;
-            attemptCount = 0; // Reset attempt count when starting new quiz
             
             shuffleQuestions();
             initializeQuiz();
@@ -1531,7 +1529,6 @@
             console.log('📝 Submitting quiz...');
             
             quizCompleted = true;
-            attemptCount++; // Increment attempt count
             
             document.getElementById('question-container').style.display = 'none';
             document.querySelector('.navigation').style.display = 'none';
@@ -1560,19 +1557,10 @@
                 personalMessage = `${studentName}, đừng nản lòng! Hãy thử lại!`;
             }
             
-            // Get practice name
-            const practiceName = CONFIG.practices.find(p => p.id === currentPractice)?.name || currentPractice;
-            
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <div style="font-size: clamp(1.5em, 5vw, 2em); color: #667eea; font-weight: bold; margin-bottom: 10px;">
-                    👨‍🎓 ${studentName}
-                </div>
-                <div style="font-size: clamp(1.1em, 3.5vw, 1.3em); color: #666; margin-bottom: 10px;">
-                    📚 ${practiceName}
-                </div>
-                <div style="font-size: clamp(1em, 3vw, 1.2em); color: #888; margin-bottom: 15px;">
-                    🔢 Lần nộp: ${attemptCount}
+                    👤 ${studentName}
                 </div>
                 <div class="score">${finalScore}/${questions.length}</div>
                 <div style="font-size: clamp(1.2em, 4vw, 1.5em); margin-bottom: 15px;">Tỷ lệ đúng: ${percentage}%</div>
@@ -1588,7 +1576,7 @@
             
             resultDiv.style.display = 'block';
             
-            console.log(`✅ Quiz completed by ${studentName}: ${finalScore}/${questions.length} (${percentage}%) - Attempt: ${attemptCount}`);
+            console.log(`✅ Quiz completed by ${studentName}: ${finalScore}/${questions.length} (${percentage}%)`);
         }
 
         // Reset quiz with complete state cleanup
@@ -1601,7 +1589,6 @@
             quizCompleted = false;
             score = 0;
             correctAnswers = 0;
-            // Note: attemptCount is NOT reset here so it keeps counting across retries
             
             if (currentAudio) {
                 currentAudio.pause();
@@ -1643,7 +1630,6 @@
             questions = [];
             score = 0;
             correctAnswers = 0;
-            attemptCount = 0; // Reset attempt count when going back to selection
             
             if (currentAudio) {
                 currentAudio.pause();
