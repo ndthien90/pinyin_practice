@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Dữ Liệu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nhập Dữ Liệu</h1>
+    <p>Vui lòng nhập dữ liệu theo định dạng: chữ Hán|nghĩa|phiên âm 1|phiên âm 2|*phiên âm 3|phiên âm 4</p>
+    
+    <textarea id="inputData" placeholder="Nhập dữ liệu ở đây..."></textarea>
+    <button onclick="processData()">Tách Chữ Hán</button>
+    
+    <h2>Kết Quả:</h2>
+    <pre id="result"></pre>
+
+    <script>
+        function processData() {
+            const input = document.getElementById('inputData').value;
+            const lines = input.split('\n');
+            const result = lines.map(line => {
+                const parts = line.split('|');
+                return parts[0]; // Tách chỉ lấy chữ Hán
+            }).join('\n');
+            document.getElementById('result').textContent = result;
+        }
+    </script>
+</body>
+</html>
