@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Bài Tập Trắc Nghiệm Pinyin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Tùy chỉnh Tailwind CSS nếu cần */
+        /* Trong dự án thực tế, bạn sẽ cấu hình trong tailwind.config.js */
+        /* Đây là cách thêm keyframes và animations trực tiếp trong style nếu dùng CDN */
+        @layer base {
+            html {
+                -webkit-tap-highlight-color: transparent;
+            }
+            body {
+                font-family: 'Mulish', sans-serif;
+            }
+        }
+
+        @keyframes pulseSlight {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        @keyframes buttonPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-pulse-slight {
+            animation: pulseSlight 0.8s ease-in-out;
+        }
+
+        .animate-shake {
+            animation: shake 0.8s ease-in-out;
+        }
+
+        .animate-button-pulse {
+            animation: buttonPulse 1s infinite;
+        }
+
+        /* Đảm bảo chữ Hán không bị mờ trên DPI cao nếu font KaiTi không hỗ trợ tốt */
+        .chinese-text {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Chỉnh lại font cho chữ Hán nếu muốn riêng biệt */
+        .chinese-text {
+            font-family: 'KaiTi', '楷体', serif;
+        }
+
+        /* Specificity tweaks for font color within selected/correct/incorrect options */
+        .option.selected span:first-child,
+        .option.correct span:first-child,
+        .option.incorrect span:first-child {
+            color: inherit !important; /* Kế thừa màu từ thẻ cha (màu trắng) */
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-100 min-h-screen flex justify-center items-start p-2 md:p-10 overflow-x-hidden">
+    <div class="container max-w-3xl w-full bg-white rounded-xl shadow-lg p-5 md:p-8 text-center relative overflow-hidden my-2 md:my-0">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-blue-500"></div>
+
+        <div class="header mb-6">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2 leading-tight">
+                📝 Bài Tập Trắc Nghiệm Pinyin
+            </h1>
+            <p class="text-gray-600 text-sm md:text-base">
+                Chọn phát âm Pinyin đúng cho từ tiếng Trung
+            </p>
+        </div>
+
+        <div class="practice-selector bg-gray-50 p-4 md:p-6 rounded-lg mb-6 border-l-4 border-blue-500" id="practice-selector">
+            <h3 class="mt-0 text-gray-800 font-semibold mb-4 text-lg md:text-xl">
+                🎯 Thông tin học sinh và Bài luyện tập:
+            </h3>
+
+            <div class="student-info mb-4 text-left">
+                <label for="student-name" class="block text-gray-700 font-semibold mb-2">👨‍🎓 Tên học sinh:</label>
+                <input type="text" id="student-name" class="student-input w-full p-3 md:p-4 border-2 border-gray-300 rounded-lg text-base md:text-lg font-medium bg-white transition duration-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 placeholder-gray-500" placeholder="Nhập tên của bạn..." maxlength="50">
+            </div>
+
+            <div class="dropdown-container flex flex-col md:flex-row items-center justify-center gap-4">
+                <select class="practice-dropdown flex-1 w-full md:w-auto p-3 md:p-4 border-2 border-gray-300 rounded-lg text-base md:text-lg font-semibold bg-white cursor-pointer transition duration-300 hover:border-blue-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 min-w-[200px] max-w-sm" id="practice-dropdown">
+                    <option value="">Chọn bài luyện tập...</option>
+                </select>
+                <button class="load-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-full text-base md:text-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[120px] whitespace-nowrap" id="load-btn">
+                    🚀 Tải Bài
+                </button>
+            </div>
+            <div class="loading hidden mt-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-sm md:text-base text-yellow-800" id="loading">⏳ Đang tải dữ liệu...</div>
+            <div class="error hidden bg-red-100 text-red-800 border-2 border-red-400 rounded-lg p-4 mt-4 text-sm md:text-base" id="error"></div>
+            <div class="practice-info hidden mt-4 p-4 bg-blue-100 rounded-lg text-blue-800 text-sm md:text-base" id="practice-info"></div>
+        </div>
+
+        <div class="quiz-section hidden" id="quiz-section">
+            <div class="stats grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg shadow-sm">
+                <div class="stat-item text-center">
+                    <div class="stat-value text-2xl md:text-3xl font-bold text-purple-600" id="question-number-stat">1</div>
+                    <div class="stat-label text-gray-600 text-xs md:text-sm mt-1">Câu hỏi</div>
+                </div>
+                <div class="stat-item text-center">
+                    <div class="stat-value text-2xl md:text-3xl font-bold text-purple-600" id="score-stat">0</div>
+                    <div class="stat-label text-gray-600 text-xs md:text-sm mt-1">Điểm số</div>
+                </div>
+                <div class="stat-item text-center">
+                    <div class="stat-value text-2xl md:text-3xl font-bold text-purple-600" id="accuracy-stat">0%</div>
+                    <div class="stat-label text-gray-600 text-xs md:text-sm mt-1">Độ chính xác</div>
+                </div>
+            </div>
+
+            <div class="progress-bar bg-gray-200 rounded-full h-2 mb-6 overflow-hidden">
+                <div class="progress-fill bg-green-500 h-full w-0 transition-all duration-300 ease-in-out" id="progress-fill"></div>
+            </div>
+
+            <div class="question-number text-gray-600 mb-4 font-semibold text-base md:text-lg" id="question-number">Câu 1 / ?</div>
+
+            <div class="question-container bg-gray-50 rounded-xl p-5 md:p-8 mb-6 min-h-[350px] flex flex-col justify-center shadow-sm">
+                <div class="question text-gray-800 font-semibold text-lg md:text-xl mb-4">Cách đọc pinyin của chữ sau là gì?</div>
+                <div class="chinese-container flex flex-col items-center gap-3 my-5">
+                    <div class="chinese-text text-6xl md:text-7xl text-red-600 font-normal cursor-pointer transition-transform duration-300 hover:scale-110 leading-none" id="chinese-text" onclick="playAudio()">?</div>
+                    <div class="meaning text-gray-600 text-lg md:text-xl font-normal italic" id="meaning">?</div>
+                    <button class="audio-btn bg-blue-500 hover:bg-blue-600 text-white rounded-full w-14 h-14 md:w-16 md:h-16 text-2xl md:text-3xl flex items-center justify-center cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 touch-manipulation" id="audio-btn" onclick="playAudio()" title="Phát âm">🔊</button>
+                </div>
+                <div class="options grid grid-cols-2 gap-3 md:gap-4 my-5" id="options"></div>
+                <div class="feedback mt-4 p-4 rounded-lg font-semibold text-sm md:text-base min-h-[20px]" id="feedback"></div>
+                <div id="audio-status" class="audio-status hidden mt-3 p-3 rounded-lg text-sm text-center"></div>
+            </div>
+
+            <div class="button-container flex flex-col gap-4 mt-6">
+                <button class="submit-btn hidden bg-green-500 hover:bg-green-600 text-white font-semibold py-4 px-8 rounded-full text-lg md:text-xl transition duration-300 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-300 w-full max-w-xs mx-auto touch-manipulation" id="submit-btn" onclick="submitQuiz()">Nộp Bài</button>
+
+                <div class="navigation flex justify-center items-center gap-4">
+                    <button class="nav-btn bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-full text-sm md:text-base transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 max-w-[120px] whitespace-nowrap touch-manipulation" id="next-btn" onclick="nextQuestion()" disabled>Tiếp →</button>
+                </div>
+            </div>
+
+            <div id="result" class="result hidden bg-green-50 rounded-xl border-2 border-green-300 p-6 md:p-8 mt-6 text-center shadow-lg"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            dataPath: 'data_pinyinPractice/',
+            practices: [
+                { id: 'practice1', name: '📚 Luyện Tập 1' },
+                { id: 'practice2', name: '📚 Luyện Tập 2' },
+                { id: 'practice3', name: '📚 Luyện Tập 3 ' },
+                { id: 'practice4', name: '📚 Luyện Tập 4 ' },
+                { id: 'practice5', name: '📚 Luyện Tập 5 ' },
+                { id: 'practice6', name: '📚 Luyện Tập 6 ' },
+                { id: 'practice7', name: '📚 Luyện Tập 7 ' },
+                { id: 'practice8', name: '📚 Luyện Tập 8 ' },
+                { id: 'practice9', name: '📚 Luyện Tập 9 ' },
+                { id: 'practice10', name: '📚 Luyện Tập 10 ' },
+            ]
+        };
+
+        // Demo data as fallback (Same as original for functionality)
+        const demoData = {
+            practice1: `你|bạn|nī|ní|*nǐ|nì
+我|tôi|wō|wó|*wǒ|wò
+他|anh ấy|tā|tá|*tā|tà
+她|cô ấy|tā|tá|*tā|tà
+好|tốt|hāo|háo|*hǎo|hào
+来|đến|lāi|*lái|lǎi|lài
+去|đi|qū|qú|qǔ|*qù
+大|lớn|dā|dá|dǎ|*dà
+小|nhỏ|xiāo|xiáo|*xiǎo|xiào
+人|người|rēn|*rén|rěn|rèn
+家|nhà|*jiā|jiá|jiǎ|jià
+学|học|xuē|xué|*xué|xuè
+吃|ăn|chī|*chī|chǐ|chì
+喝|uống|hē|hé|*hē|hè
+看|xem|kān|kán|*kàn|kàn`,
+            practice2: `八|tám|bā|bá|*bā|bà
+怕|sợ|pā|pá|pǎ|*pà
+马|ngựa|mā|má|*mǎ|mà
+发|phát|*fā|fá|fǎ|fà
+那|đó|nā|ná|nǎ|*nà
+个|cái|gē|gé|gě|*gè
+可|có thể|kē|ké|*kě|kè
+天|trời|*tiān|tián|tiǎn|tiàn
+不|không|bū|bú|bǔ|*bù
+对|đúng|duī|duí|duǐ|*duì
+有|có|yōu|yóu|*yǒu|yòu
+会|biết|huī|huí|*huì|huì
+说|nói|shuō|shuó|*shuō|shuò
+做|làm|zuō|zuó|*zuò|zuò
+想|nghĩ|xiāng|xiáng|*xiǎng|xiàng`,
+            practice3: `门|cửa|mēn|mén|*mén|mèn
+问|hỏi|wēn|wén|wěn|*wèn
+很|rất|hēn|hén|*hěn|hèn
+跟|với|gēn|gén|*gēn|gèn
+什|gì|shén|shé|*shén|shè
+么|gì|me|mé|*me|mè
+时|thời|shí|shí|*shí|shì
+候|lúc|hóu|hóu|*hòu|hòu
+年|năm|nián|nián|*nián|nián
+月|tháng|yuē|yué|*yuè|yuè
+日|ngày|rí|rí|*rì|rì
+今|hôm|jīn|jín|*jīn|jìn
+明|mai|míng|míng|*míng|mìng
+昨|hôm qua|zuó|zuó|*zuó|zuò
+现|hiện tại|xiàn|xiàn|*xiàn|xiàn`
+        };
+
+
+        let questions = [];
+        let currentQuestion = 0;
+        let userAnswers = {};
+        let questionAnswered = false;
+        let quizCompleted = false;
+        let currentPractice = '';
+        let currentAudio = null;
+        let score = 0;
+        let correctAnswers = 0;
+        let studentName = '';
+        let attemptCount = 0;
+
+        function initializeApp() {
+            populatePracticeDropdown();
+            setupTouchOptimizations();
+            
+            const loadBtn = document.getElementById('load-btn');
+            if (loadBtn) {
+                // Ensure event listeners are correctly set up, accounting for potential double-firing
+                // It's best to remove any previous listeners if this function can be called multiple times
+                loadBtn.onclick = null; // Clear old onclick
+                loadBtn.removeEventListener('click', handleLoadButtonClick); // Remove old addEventListener
+                loadBtn.removeEventListener('touchend', handleLoadButtonClick); // Remove old touchend
+
+                loadBtn.addEventListener('click', handleLoadButtonClick);
+                loadBtn.addEventListener('touchend', handleLoadButtonClick);
+            }
+        }
+
+        // Centralized event handler for load button to prevent multiple calls
+        function handleLoadButtonClick(e) {
+            e.preventDefault();
+            loadPractice();
+        }
+
+        function setupTouchOptimizations() {
+            const addTouchFeedback = (element) => {
+                // Tailwind's hover and active classes should largely handle this
+                // but for explicit touch feedback, these listeners can be used.
+                // However, Tailwind's focus-visible or `:active` are usually sufficient.
+            };
+            // Removed explicit touchstart/touchend opacities as Tailwind's hover/active/focus provide better control.
+        }
+
+        function populatePracticeDropdown() {
+            const dropdown = document.getElementById('practice-dropdown');
+            dropdown.innerHTML = '<option value="">Chọn bài luyện tập...</option>';
+            
+            CONFIG.practices.forEach(practice => {
+                const option = document.createElement('option');
+                option.value = practice.id;
+                option.textContent = practice.name;
+                dropdown.appendChild(option);
+            });
+        }
+
+        async function loadPractice() {
+            const practiceSelect = document.getElementById('practice-dropdown');
+            const selectedPractice = practiceSelect.value;
+            const studentNameInput = document.getElementById('student-name');
+            const inputStudentName = studentNameInput.value.trim();
+            
+            if (!inputStudentName) {
+                showError('Vui lòng nhập tên học sinh!');
+                studentNameInput.classList.add('border-red-500', 'ring-2', 'ring-red-100');
+                studentNameInput.focus();
+                return;
+            }
+            
+            if (!selectedPractice) {
+                showError('Vui lòng chọn một bài luyện tập!');
+                studentNameInput.classList.remove('border-red-500', 'ring-2', 'ring-red-100');
+                return;
+            }
+            
+            studentNameInput.classList.remove('border-red-500', 'ring-2', 'ring-red-100');
+            studentName = inputStudentName;
+            
+            showLoading(true);
+            hideError();
+            
+            const loadBtn = document.getElementById('load-btn');
+            loadBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            loadBtn.textContent = '⏳ Đang tải...';
+            loadBtn.disabled = true; // Disable button properly
+
+            try {
+                let fileContent;
+                let isUsingDemo = false;
+                
+                try {
+                    const txtPath = `${CONFIG.dataPath}${selectedPractice}/${selectedPractice}.txt`;
+                    const response = await fetch(txtPath);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    fileContent = await response.text();
+                    
+                } catch (error) {
+                    if (demoData[selectedPractice]) {
+                        fileContent = demoData[selectedPractice];
+                        isUsingDemo = true;
+                    } else {
+                        throw new Error(`Không tìm thấy dữ liệu cho ${selectedPractice}`);
+                    }
+                }
+                
+                if (isUsingDemo) {
+                    showError(`⚠️ Đang sử dụng dữ liệu demo. Để dùng file thật, hãy đặt file tại: ${CONFIG.dataPath}${selectedPractice}/${selectedPractice}.txt`);
+                    setTimeout(hideError, 6000);
+                }
+                
+                const lines = fileContent.trim().split('\n');
+                questions = [];
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const parts = line.split('|');
+                    if (parts.length !== 6) {
+                        console.warn(`Dòng ${i + 1} có format không đúng: ${line}`);
+                        continue;
+                    }
+                    
+                    const [chinese, meaning, opt1, opt2, opt3, opt4] = parts;
+                    const options = [opt1, opt2, opt3, opt4];
+                    
+                    let correct = '';
+                    const cleanOptions = options.map(opt => {
+                        if (opt.startsWith('*')) {
+                            correct = opt.substring(1);
+                            return correct;
+                        }
+                        return opt;
+                    });
+                    
+                    if (!correct) {
+                        console.warn(`Không tìm thấy đáp án đúng trong dòng ${i + 1}: ${line}`);
+                        continue;
+                    }
+                    
+                    questions.push({
+                        chinese: chinese,
+                        meaning: meaning,
+                        correct: correct,
+                        options: shuffleArray([...cleanOptions]),
+                        audioFile: `${chinese}.mp3`,
+                        isDemo: isUsingDemo
+                    });
+                }
+                
+                if (questions.length === 0) {
+                    throw new Error('Không tìm thấy câu hỏi hợp lệ trong file!');
+                }
+                
+                currentPractice = selectedPractice;
+                showPracticeInfo(selectedPractice, questions.length);
+                showLoading(false);
+                
+            } catch (error) {
+                showError(error.message);
+                showLoading(false);
+            } finally {
+                loadBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                loadBtn.textContent = '🚀 Tải Bài';
+                loadBtn.disabled = false; // Re-enable button
+            }
+        }
+
+        function showPracticeInfo(practiceId, questionCount) {
+            const infoDiv = document.getElementById('practice-info');
+            const practiceName = CONFIG.practices.find(p => p.id === practiceId)?.name || practiceId;
+            
+            infoDiv.innerHTML = `
+                <strong class="text-gray-900">👨‍🎓 Học sinh: ${studentName}</strong><br>
+                <strong class="text-gray-900">📚 ${practiceName}</strong><br>
+                Số câu hỏi: ${questionCount}<br>
+                <div class="action-buttons flex flex-col md:flex-row gap-4 mt-4 justify-center">
+                    <button class="action-btn start-quiz-btn bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-300 flex items-center justify-center gap-2 flex-1 min-w-[150px] max-w-sm" onclick="startQuiz()">
+                        🎯 Bắt đầu Quiz
+                    </button>
+                </div>
+            `;
+            showElement('practice-info');
+        }
+
+        function startQuiz() {
+            if (!questions.length) {
+                showError('Chưa có dữ liệu bài học. Vui lòng chọn bài học trước.');
+                return;
+            }
+
+            currentQuestion = 0;
+            userAnswers = {};
+            questionAnswered = false;
+            quizCompleted = false;
+            score = 0;
+            correctAnswers = 0;
+            attemptCount = 0;
+            
+            shuffleQuestions();
+            initializeQuiz();
+        }
+
+        function initializeQuiz() {
+            hideElement('practice-selector');
+            showElement('quiz-section');
+            
+            displayQuestion();
+            updateStats();
+        }
+
+        function shuffleQuestions() {
+            for (let i = questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questions[i], questions[j]] = [questions[j], questions[i]];
+            }
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function displayQuestion() {
+            if (questions.length === 0) return;
+            
+            const question = questions[currentQuestion];
+            questionAnswered = false;
+            
+            document.getElementById('question-number').textContent = `Câu ${currentQuestion + 1} / ${questions.length}`;
+            document.getElementById('chinese-text').textContent = question.chinese;
+            document.getElementById('meaning').textContent = question.meaning;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option bg-white border-2 border-gray-300 rounded-lg p-3 md:p-4 cursor-pointer transition-all duration-300 text-left font-medium text-lg md:text-xl shadow-sm hover:shadow-md hover:border-blue-400 touch-manipulation min-h-[55px] flex items-center justify-start relative overflow-hidden';
+                
+                const labelSpan = document.createElement('span');
+                labelSpan.classList.add('font-bold', 'text-blue-600', 'mr-2');
+                labelSpan.textContent = `${optionLabels[index]}.`;
+                
+                const textSpan = document.createElement('span');
+                textSpan.textContent = option;
+                
+                optionDiv.appendChild(labelSpan);
+                optionDiv.appendChild(textSpan);
+                
+                optionDiv.onclick = () => selectOption(index, option);
+                optionDiv.id = `option-${index}`;
+                optionDiv.dataset.originalOption = option;
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('feedback').className = 'feedback mt-4 p-4 rounded-lg font-semibold text-sm md:text-base min-h-[20px]';
+            
+            const audioBtn = document.getElementById('audio-btn');
+            audioBtn.classList.remove('animate-button-pulse', 'bg-green-500', 'bg-red-500'); // Clean up previous states
+            audioBtn.classList.add('bg-blue-500', 'hover:bg-blue-600'); // Restore default blue
+            audioBtn.disabled = false;
+            
+            updateNavigationButtons();
+            updateProgress();
+            updateStats();
+            hideElement('audio-status');
+        }
+
+        function selectOption(optionIndex, selectedAnswer) {
+            if (quizCompleted || questionAnswered) return;
+            
+            const question = questions[currentQuestion];
+            const isCorrect = selectedAnswer === question.correct;
+            
+            const allOptions = document.querySelectorAll('.option');
+            allOptions.forEach(option => {
+                option.classList.remove('bg-blue-500', 'text-white', 'border-blue-500', 'bg-green-500', 'border-green-500', 'bg-red-500', 'border-red-500', 'animate-pulse-slight', 'animate-shake');
+                // Restore default styles for all options
+                option.classList.add('bg-white', 'border-gray-300', 'hover:border-blue-400');
+                option.querySelector('span:first-child').classList.remove('text-white'); // Remove white color from label
+                option.querySelector('span:first-child').classList.add('text-blue-600'); // Restore blue label color
+            });
+            
+            const selectedOption = document.getElementById(`option-${optionIndex}`);
+            if (!selectedOption) {
+                return;
+            }
+            
+            // Apply selected style
+            selectedOption.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+            selectedOption.querySelector('span:first-child').classList.add('text-white'); // Make label white too
+            
+            if (isCorrect) {
+                selectedOption.classList.remove('bg-blue-500', 'border-blue-500'); // Remove selected blue
+                selectedOption.classList.add('bg-green-500', 'border-green-500', 'animate-pulse-slight');
+                document.getElementById('feedback').innerHTML = '✅ Chính xác!';
+                document.getElementById('feedback').className = 'feedback mt-4 p-4 rounded-lg font-semibold text-sm md:text-base min-h-[20px] bg-green-100 text-green-800 border-2 border-green-400';
+                
+                userAnswers[currentQuestion] = selectedAnswer;
+                questionAnswered = true;
+                score += 10;
+                correctAnswers++;
+                
+            } else {
+                selectedOption.classList.remove('bg-blue-500', 'border-blue-500'); // Remove selected blue
+                selectedOption.classList.add('bg-red-500', 'border-red-500', 'animate-shake');
+                
+                allOptions.forEach(option => {
+                    const optionText = option.querySelector('span:last-child').textContent;
+                    if (optionText === question.correct) {
+                        option.classList.add('bg-green-500', 'border-green-500');
+                        option.querySelector('span:first-child').classList.add('text-white'); // Make label white
+                    }
+                });
+                
+                document.getElementById('feedback').innerHTML = `❌ Sai rồi! Đáp án đúng là: <strong class="text-current">${question.correct}</strong>`; // Text-current to inherit white
+                document.getElementById('feedback').className = 'feedback mt-4 p-4 rounded-lg font-semibold text-sm md:text-base min-h-[20px] bg-red-100 text-red-800 border-2 border-red-400';
+                
+                userAnswers[currentQuestion] = selectedAnswer;
+                questionAnswered = true;
+            }
+            
+            allOptions.forEach(option => {
+                option.classList.add('opacity-80', 'pointer-events-none', 'cursor-not-allowed');
+                option.onclick = null;
+            });
+            
+            updateNavigationButtons();
+            updateStats();
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        function updateStats() {
+            document.getElementById('question-number-stat').textContent = `${currentQuestion + 1}`;
+            document.getElementById('score-stat').textContent = score;
+            
+            const answeredQuestions = Object.keys(userAnswers).length;
+            const accuracy = answeredQuestions > 0 ? Math.round((correctAnswers / answeredQuestions) * 100) : 0;
+            document.getElementById('accuracy-stat').textContent = `${accuracy}%`;
+        }
+
+        function updateNavigationButtons() {
+            const nextBtn = document.getElementById('next-btn');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (currentQuestion === questions.length - 1) {
+                hideElement('next-btn');
+                showElement('submit-btn');
+                submitBtn.disabled = Object.keys(userAnswers).length !== questions.length;
+                submitBtn.classList.toggle('opacity-50', submitBtn.disabled);
+                submitBtn.classList.toggle('cursor-not-allowed', submitBtn.disabled);
+            } else {
+                showElement('next-btn');
+                hideElement('submit-btn');
+                nextBtn.disabled = !questionAnswered;
+                nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+                nextBtn.classList.toggle('cursor-not-allowed', nextBtn.disabled);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1 && questionAnswered) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        async function playAudio() {
+            if (questions.length === 0) return;
+            
+            const question = questions[currentQuestion];
+            const audioBtn = document.getElementById('audio-btn');
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            try {
+                let audioPath;
+                audioPath = `${CONFIG.dataPath}${currentPractice}/mp3/${question.audioFile}`;
+                
+                currentAudio = new Audio(audioPath);
+                
+                audioBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'bg-red-500');
+                audioBtn.classList.add('animate-button-pulse', 'bg-green-500');
+                audioBtn.disabled = true;
+
+                currentAudio.onended = function() {
+                    audioBtn.classList.remove('animate-button-pulse', 'bg-green-500');
+                    audioBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                    audioBtn.disabled = false;
+                };
+                
+                currentAudio.onerror = function(e) {
+                    console.error('Audio error:', e);
+                    audioBtn.classList.remove('animate-button-pulse', 'bg-green-500');
+                    audioBtn.classList.add('bg-red-500'); // Red for error
+                    audioBtn.disabled = false;
+                    
+                    playTextToSpeech(question.chinese);
+                    showAudioStatus('Dùng âm thanh tổng hợp', 'info');
+                };
+                
+                currentAudio.volume = 1.0;
+                currentAudio.playbackRate = 0.8;
+                
+                await currentAudio.play();
+                
+            } catch (error) {
+                console.error('Error playing audio:', error);
+                audioBtn.classList.remove('animate-button-pulse', 'bg-green-500');
+                audioBtn.classList.add('bg-red-500');
+                audioBtn.disabled = false;
+                
+                playTextToSpeech(question.chinese);
+                showAudioStatus('Dùng âm thanh tổng hợp', 'info');
+            }
+        }
+
+        function playTextToSpeech(text) {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN'; // Set language to Chinese
+                utterance.rate = 0.7;
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            } else {
+                // Fallback for browsers without SpeechSynthesis (less common now)
+                const chineseText = document.getElementById('chinese-text');
+                const originalText = chineseText.textContent;
+                const question = questions[currentQuestion];
+                chineseText.textContent = question.correct;
+                chineseText.classList.remove('text-red-600');
+                chineseText.classList.add('text-blue-500'); // Change color to indicate TTS
+                
+                setTimeout(() => {
+                    chineseText.textContent = originalText;
+                    chineseText.classList.remove('text-blue-500');
+                    chineseText.classList.add('text-red-600');
+                }, 2000);
+            }
+        }
+
+        function showAudioStatus(message, type) {
+            const statusDiv = document.getElementById('audio-status');
+            statusDiv.textContent = message;
+            statusDiv.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'border-red-400', 'bg-blue-100', 'text-blue-800', 'border-blue-400', 'bg-green-100', 'text-green-800', 'border-green-400');
+            
+            if (type === 'error') {
+                statusDiv.classList.add('bg-red-100', 'text-red-800', 'border-red-400');
+            } else if (type === 'info') {
+                statusDiv.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-400');
+            } else if (type === 'success') {
+                statusDiv.classList.add('bg-green-100', 'text-green-800', 'border-green-400');
+            }
+            statusDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        function submitQuiz() {
+            if (quizCompleted) return;
+            
+            quizCompleted = true;
+            attemptCount++;
+            
+            hideElement('question-container');
+            hideElement(document.querySelector('.navigation'));
+            hideElement('submit-btn');
+            hideElement(document.querySelector('.progress-bar'));
+            hideElement('question-number');
+            hideElement(document.querySelector('.stats'));
+            
+            const finalScore = correctAnswers;
+            const percentage = Math.round((finalScore / questions.length) * 100);
+            let message = '';
+            let personalMessage = '';
+            
+            if (percentage >= 90) {
+                message = '🎉 Xuất sắc! Bạn đã thành thạo pinyin!';
+                personalMessage = `Chúc mừng ${studentName}! Kết quả tuyệt vời!`;
+            } else if (percentage >= 70) {
+                message = '👍 Khá tốt! Hãy tiếp tục luyện tập!';
+                personalMessage = `Tốt lắm ${studentName}! Bạn đang tiến bộ!`;
+            } else if (percentage >= 50) {
+                message = '📚 Cần cải thiện thêm. Hãy học thêm nhé!';
+                personalMessage = `${studentName}, hãy cố gắng thêm nhé!`;
+            } else {
+                message = '💪 Đừng nản lòng! Hãy ôn tập và thử lại!';
+                personalMessage = `${studentName}, đừng nản lòng! Hãy thử lại!`;
+            }
+            
+            const practiceName = CONFIG.practices.find(p => p.id === currentPractice)?.name || currentPractice;
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="text-xl md:text-2xl text-purple-600 font-bold mb-3">
+                    👨‍🎓 ${studentName}
+                </div>
+                <div class="text-base md:text-lg text-gray-600 mb-3">
+                    📚 ${practiceName}
+                </div>
+                <div class="text-sm md:text-base text-gray-700 mb-4">
+                    🔢 Lần nộp: ${attemptCount}
+                </div>
+                <div class="score text-4xl md:text-5xl font-bold text-green-600 mb-4">${finalScore}/${questions.length}</div>
+                <div class="text-lg md:text-xl mb-4">Tỷ lệ đúng: ${percentage}%</div>
+                <div class="text-lg md:text-xl mb-3 text-green-600 font-semibold">
+                    ${personalMessage}
+                </div>
+                <div class="text-base md:text-lg mb-6">${message}</div>
+                <div class="result-buttons flex flex-col gap-4 mt-6">
+                    <button class="reset-btn bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-300 touch-manipulation" onclick="resetQuiz()">🔄 Làm lại</button>
+                    <button class="back-btn bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-300 touch-manipulation" onclick="backToSelection()">📚 Chọn bài khác</button>
+                </div>
+            `;
+            
+            showElement('result');
+        }
+
+        function resetQuiz() {
+            currentQuestion = 0;
+            userAnswers = {};
+            questionAnswered = false;
+            quizCompleted = false;
+            score = 0;
+            correctAnswers = 0;
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+            
+            showElement('question-container');
+            showElement(document.querySelector('.navigation'));
+            showElement(document.querySelector('.progress-bar'));
+            showElement('question-number');
+            showElement(document.querySelector('.stats'));
+            hideElement('result');
+            
+            hideElement('submit-btn');
+            showElement('next-btn');
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('next-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('feedback').className = 'feedback mt-4 p-4 rounded-lg font-semibold text-sm md:text-base min-h-[20px]';
+            
+            document.getElementById('progress-fill').style.width = '0%';
+            
+            shuffleQuestions();
+            displayQuestion();
+            updateStats();
+        }
+
+        function backToSelection() {
+            currentQuestion = 0;
+            userAnswers = {};
+            questionAnswered = false;
+            quizCompleted = false;
+            questions = [];
+            score = 0;
+            correctAnswers = 0;
+            attemptCount = 0;
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio = null;
+            }
+            
+            showElement('question-container');
+            showElement(document.querySelector('.navigation'));
+            showElement(document.querySelector('.progress-bar'));
+            showElement('question-number');
+            showElement(document.querySelector('.stats'));
+            hideElement('submit-btn');
+            hideElement('result');
+            
+            document.getElementById('submit-btn').classList.add('hidden'); // Ensure submit is hidden
+            document.getElementById('next-btn').classList.remove('hidden'); // Ensure next is visible
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('next-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            document.getElementById('submit-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            
+            document.getElementById('options').innerHTML = '';
+            
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('feedback').className = 'feedback mt-4 p-4 rounded-lg font-semibold text-sm md:text-base min-h-[20px]';
+            
+            document.getElementById('progress-fill').style.width = '0%';
+            
+            document.getElementById('question-number-stat').textContent = '1';
+            document.getElementById('score-stat').textContent = '0';
+            document.getElementById('accuracy-stat').textContent = '0%';
+            
+            document.getElementById('question-number').textContent = 'Câu 1 / ?';
+            document.getElementById('chinese-text').textContent = '?';
+            document.getElementById('meaning').textContent = '?';
+            
+            showElement('practice-selector');
+            hideElement('quiz-section');
+            
+            document.getElementById('practice-dropdown').value = '';
+            hideError();
+            hideElement('practice-info');
+            
+            document.getElementById('student-name').classList.remove('border-red-500', 'ring-2', 'ring-red-100');
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            const loadingDiv = document.getElementById('loading');
+            const loadBtn = document.getElementById('load-btn');
+            if (show) {
+                loadingDiv.classList.remove('hidden');
+                loadBtn.disabled = true;
+                loadBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                loadingDiv.classList.add('hidden');
+                loadBtn.disabled = false;
+                loadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.add('hidden');
+        }
+
+        function showElement(id) {
+            if (typeof id === 'string') {
+                document.getElementById(id).classList.remove('hidden');
+            } else { // Assume it's an element directly
+                id.classList.remove('hidden');
+            }
+        }
+
+        function hideElement(id) {
+            if (typeof id === 'string') {
+                document.getElementById(id).classList.add('hidden');
+            } else { // Assume it's an element directly
+                id.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        window.addEventListener('beforeunload', function() {
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+        });
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 100);
+        });
+    </script>
+</body>
+</html>
